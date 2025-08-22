@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFLLO - Login e Cadastro</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f7f7f7;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            text-align: center;
+            overflow: hidden;
+        }
+
+        .form-container {
+            background-color: #fff;
+            width: 350px;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            transform: perspective(800px);
+            transition: all 0.5s ease;
+            opacity: 0;
+            display: none;
+            animation: slideIn 0.5s forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateY(-30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .form-container.show {
+            display: block;
+        }
+
+        h1 {
+            color: #000;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-container h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 16px;
+            background-color: #f9f9f9;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        input:focus {
+            border-color: #333;
+            background-color: #fff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: #333;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transition: transform 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        button:hover {
+            background-color: #555;
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        a {
+            color: #333;
+            text-decoration: none;
+            font-weight: bold;
+        }
+
+        .switch-form {
+            margin-top: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="form-container show" id="login-form">
+        <h1>Bem-vindo!</h1>
+        <h2>Login</h2>
+        <form action="/login" method="POST" aria-labelledby="login-form">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Entrar</button>
+        </form>
+        <div class="switch-form">
+            <p>Não tem uma conta? <a href="javascript:void(0);" onclick="toggleForms('register')">Cadastre-se</a></p>
+        </div>
+    </div>
+
+    <div class="form-container" id="register-form">
+        <h1>Bem-vindo!</h1>
+        <h2>Cadastro</h2>
+        <form action="/register" method="POST" aria-labelledby="register-form">
+            <input type="email" name="email" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Senha" required>
+            <button type="submit">Cadastrar</button>
+        </form>
+        <div class="switch-form">
+            <p>Já tem uma conta? <a href="javascript:void(0);" onclick="toggleForms('login')">Faça login</a></p>
+        </div>
+    </div>
+
+    <script>
+        function toggleForms(form) {
+            const loginForm = document.getElementById("login-form");
+            const registerForm = document.getElementById("register-form");
+
+            if (form === "register") {
+                loginForm.classList.remove("show");
+                registerForm.classList.add("show");
+            } else {
+                registerForm.classList.remove("show");
+                loginForm.classList.add("show");
+            }
+        }
+    </script>
+</body>
+</html>

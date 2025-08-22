@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Editar Produto</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f1f1f1;
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #333;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="file"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .image-preview {
+      text-align: center;
+      margin-top: 15px;
+    }
+
+    .image-preview img {
+      max-width: 200px;
+      border-radius: 10px;
+    }
+
+    button {
+      margin-top: 20px;
+      background-color: #28a745;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      font-size: 16px;
+    }
+
+    button:hover {
+      background-color: #218838;
+    }
+
+    .voltar {
+      margin-top: 10px;
+      text-align: center;
+    }
+
+    .voltar a {
+      color: #007bff;
+      text-decoration: none;
+    }
+
+    .voltar a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Editar Produto</h2>
+    <form action="{{ url_for('editar_produto', id=produto['id']) }}" method="POST" enctype="multipart/form-data">
+      <label for="nome">Nome:</label>
+      <input type="text" id="nome" name="nome" value="{{ produto['nome'] }}" required>
+
+      <label for="quantidade">Quantidade:</label>
+      <input type="number" id="quantidade" name="quantidade" value="{{ produto['quantidade'] }}" required>
+
+      <label for="coluna_armazenada">Coluna (Ex: A, B, C):</label>
+      <input type="text" id="coluna_armazenada" name="coluna_armazenada" value="{{ produto['coluna_armazenada'] }}" required>
+
+      <label for="prateleira_armazenamento">Nível (Ex: 1, 2, 3):</label>
+      <input type="number" id="prateleira_armazenamento" name="prateleira_armazenamento" value="{{ produto['prateleira_armazenamento'] }}" required>
+
+      <label for="imagem">Imagem do Produto:</label>
+      <input type="file" id="imagem" name="imagem">
+      
+      {% if produto['imagem'] %}
+        <div class="image-preview">
+          <p>Imagem atual:</p>
+          <img src="data:image/png;base64,{{ produto['imagem'] }}" alt="Imagem do Produto">
+        </div>
+      {% endif %}
+
+      <button type="submit">Salvar Alterações</button>
+    </form>
+
+    <div class="voltar">
+      <a href="{{ url_for('estoque') }}">← Voltar para o Estoque</a>
+    </div>
+  </div>
+</body>
+</html>

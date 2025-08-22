@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Câmera - Escaneamento</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f8f8f8;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 30px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      width: 90%;
+      max-width: 900px;
+      text-align: center;
+    }
+
+    h1, h2 {
+      margin-bottom: 20px;
+    }
+
+    video {
+      width: 100%;
+      max-width: 800px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+    }
+
+    .btn-group {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    button {
+      background-color: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .detalhes {
+      background-color: #f0f4f8;
+      padding: 15px;
+      border-radius: 8px;
+      margin-top: 15px;
+      text-align: left;
+    }
+
+    a.voltar {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Modo Câmera</h1>
+
+    <!-- Escolha do modo -->
+    <div class="btn-group" id="modo-escolha">
+      <button onclick="escolherModo('produto')">📦 Escanear Produto</button>
+      <a class="voltar" href="{{ url_for('inicio') }}">
+        <button style="background-color: #e74c3c;">⏪ Voltar ao Início</button>
+      </a>
+    </div>
+    
+
+    <!-- Câmera -->
+    <video id="video" autoplay muted class="hidden"></video>
+    <canvas id="canvas" class="hidden" width="640" height="480"></canvas>
+
+    <!-- Resultado Produto -->
+    <div id="detalhes" class="detalhes hidden">
+      <h3>Produto Detectado:</h3>
+      <div id="detectionsList"></div>
+    </div>
+  </div>
+
+  <script>
+    let modoAtual = null;
+    let video = document.getElementById('video');
+    let canvas = document.getElementById('canvas');
+    let ctx = canvas.getContext('2d');
+    let detectionsList = document.getElementById('detectionsList');
+    let detalhes = document.getElementById('detalhes');
+
+    function escolherModo(modo) {
+      modoAtual = modo;
+      document.getElementById('modo-escolha').classList.add('hidden');
+      video.classList.remove('hidden');
+
+      iniciarVideo();
+    }
+
+    function iniciarVideo() {
+      navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => {
+          video.srcObject = stream;
+          capturarEEnviar(); // iniciar a detecção contínua
+        })
+        .catch(err => {
+          console.error("Erro ao acessar a câmera:", err);
+        });
+    }
+
+    function capturarEEnviar() {
+      setInterval(() => {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imagemBase64 = canvas.toDataURL("image/png");
+
+        fetch("/escanear_produto", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ imagem: imagemBase64 })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.encontrado) {
+            detectionsList.innerHTML = `
+              <p><strong>Nome:</strong> ${data.nome}</p>
+              <p><strong>Descrição:</strong> ${data.descricao}</p>
+              <p><strong>Quantidade:</strong> ${data.quantidade}</p>
+              <p><strong>Localização:</strong> ${data.localizacao}</p>
+              <img src="${data.imagem}" width="150" />
+            `;
+            detalhes.classList.remove('hidden');
+          } else {
+            detalhes.classList.add('hidden');
+            detectionsList.innerHTML = '';
+          }
+        })
+        .catch(err => {
+          console.error("Erro ao enviar imagem:", err);
+        });
+      }, 2000); // envia uma imagem a cada 2 segundos
+    }
+  </script>
+</body>
+</html>

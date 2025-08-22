@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFLLO</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        /* Estilos gerais */
+        body {
+            background-color: #e0e0e0;
+            color: #333;
+            font-family: 'Roboto', Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Estilização do cabeçalho */
+        h1 {
+            background-color: #333;
+            color: #fff;
+            padding: 40px 20px;
+            font-size: 3rem;
+            margin: 0;
+            text-shadow: 5px 5px 15px rgba(0, 0, 0, 0.4);
+            transform: perspective(600px) rotateX(10deg);
+            transition: transform 0.5s ease;
+        }
+
+        /* Efeito ao passar o mouse no cabeçalho */
+        h1:hover {
+            transform: perspective(600px) rotateX(0deg);
+        }
+
+        /* Estilização da imagem */
+        img {
+            max-width: 100%;
+            height: auto;
+            margin: 30px 0;
+            border-radius: 15px;
+            box-shadow: 0 15px 25px rgba(0, 0, 0, 0.3);
+            transform: scale(1.05);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        /* Efeito ao passar o mouse sobre a imagem */
+        img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Estilização do botão */
+        .botao {
+            background-color: #333;
+            color: white;
+            border: none;
+            padding: 20px 40px;
+            font-size: 1.4rem;
+            cursor: pointer;
+            border-radius: 15px;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 30px;
+            text-transform: uppercase;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Efeito 3D ao passar o mouse sobre o botão */
+        .botao:hover {
+            background-color: #7a8999;
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        /* Texto piscante */
+        .piscante {
+            font-size: 1.8rem;
+            color: #000;
+            font-weight: bold;
+            animation: piscar 1s infinite alternate;
+            margin: 20px 0;
+        }
+
+        @keyframes piscar {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.2rem;
+                padding: 30px;
+            }
+            .botao {
+                font-size: 1.2rem;
+                padding: 15px 30px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>EFLLO</h1>
+
+    <img src="https://r.mobirisesite.com/1317352/assets/images/photo-1588186939549-c087e0796-h_m8j11z5l.jpg"
+         alt="Imagem EFLLO - Paisagem com luz suave">
+
+    <p class="piscante">Faça parte da nossa equipe!</p>
+
+    <!-- Botão para acessar a página de login (usando Flask) -->
+    <a href="{{ url_for('login') }}" aria-label="Acessar página de login">
+        <button class="botao">Clique aqui para acessar a página de login</button>
+    </a>
+
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Gerenciamento de Estoque</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 40px;
+      background: #f0f4f8;
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: space-between;
+    }
+
+    input[type="text"],
+    input[type="number"],
+    input[type="file"] {
+      flex: 1 1 45%;
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+    }
+
+    .btn-group {
+      width: 100%;
+      text-align: center;
+      margin-top: 20px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      background: #3498db;
+      color: white;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    button:hover {
+      background: #2980b9;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid #ddd;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    th {
+      background: #f1f6fb;
+    }
+
+    img {
+      max-width: 60px;
+      border-radius: 5px;
+    }
+
+    #visual-estante {
+      margin-top: 20px;
+      overflow-x: auto;
+    }
+
+    #visual-estante table {
+      border-collapse: collapse;
+      margin: 0 auto;
+    }
+
+    #visual-estante td, #visual-estante th {
+      width: 50px;
+      height: 50px;
+      border: 1px solid #aaa;
+      text-align: center;
+      vertical-align: middle;
+      position: relative;
+    }
+
+    .destaque {
+      background-color: #ffeaa7 !important;
+    }
+
+    .celula-img img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+
+    .header-col {
+      background-color: #dfe6e9;
+      font-weight: bold;
+    }
+
+    .header-row {
+      background-color: #dfe6e9;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container" id="adicionar-container">
+  <h2>Adicionar Produto</h2>
+  <form action="{{ url_for('adicionar_produto') }}" method="POST" enctype="multipart/form-data">
+    <input type="text" name="nome" placeholder="Nome do Produto" required>
+    <input type="number" name="quantidade" placeholder="Quantidade" required>
+    <input type="number" step="0.01" name="preco" placeholder="Preço" required>
+
+    <input type="number" id="coluna" name="coluna" placeholder="Número de colunas (ex: 5)" required oninput="desenharGrade()">
+    <input type="number" id="linha" name="linha" placeholder="Número de linhas (ex: 4)" required oninput="desenharGrade()">
+    <input type="text" id="posicao" name="posicao" placeholder="Posição (ex: B3)" required oninput="destacarBloco()">
+
+    <input type="file" id="imagemInput" name="imagem" accept="image/*" capture="environment" required onchange="preverImagem(event)">
+
+    <div id="visual-estante"></div>
+
+    <div class="btn-group">
+      <button type="submit">Adicionar Produto</button>
+      <button type="button" onclick="mostrarEstoque()">Verificar Estoque</button>
+      <a href="{{ url_for('inicio') }}"><button type="button">Voltar para o Início</button></a>
+    </div>
+  </form>
+</div>
+
+<div class="container hidden" id="estoque-container">
+  <h2>Estoque Atual</h2>
+
+  {% if produtos %}
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Imagem</th>
+        <th>Nome</th>
+        <th>Quantidade</th>
+        <th>Preço</th>
+        <th>Localização</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for produto in produtos %}
+      <tr>
+        <td>{{ produto.id }}</td>
+        <td>
+          {% if produto.imagem %}
+          <img src="data:image/png;base64,{{ produto.imagem }}" alt="{{ produto.nome }}">
+          {% else %}
+          Sem imagem
+          {% endif %}
+        </td>
+        <td>{{ produto.nome }}</td>
+        <td>{{ produto.quantidade }}</td>
+        <td>R$ {{ "%.2f"|format(produto.preco) }}</td>
+        <td>{{ produto.localizacao }}</td>
+        <td>
+          <form action="{{ url_for('deletar_produto', produto_id=produto.id) }}" method="POST">
+            <button type="submit" onclick="return confirm('Deseja excluir este produto?')" style="background-color:#e74c3c; color:white;">Excluir</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+    <p>Nenhum produto cadastrado.</p>
+  {% endif %}
+
+  <div class="btn-group">
+    <button onclick="voltarAdicionar()">← Voltar</button>
+    <a href="{{ url_for('inicio') }}"><button type="button">Voltar para o Início</button></a>
+  </div>
+</div>
+
+<script>
+  let imagemBase64 = '';
+
+  function gerarLetrasExcel(n) {
+    const letras = [];
+    const alfabeto = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    for (let i = 1; i <= n; i++) {
+      let s = '';
+      let q = i;
+      while (q > 0) {
+        q -= 1;
+        s = alfabeto[q % 26] + s;
+        q = Math.floor(q / 26);
+      }
+      letras.push(s);
+    }
+    return letras;
+  }
+
+  function desenharGrade() {
+    const cols = parseInt(document.getElementById('coluna').value);
+    const rows = parseInt(document.getElementById('linha').value);
+    const container = document.getElementById('visual-estante');
+    container.innerHTML = '';
+
+    if (isNaN(cols) || isNaN(rows)) return;
+
+    const letras = gerarLetrasExcel(cols);
+    const tabela = document.createElement('table');
+
+    for (let i = 0; i <= rows; i++) {
+      const tr = document.createElement('tr');
+      for (let j = 0; j <= cols; j++) {
+        const td = document.createElement(i === 0 || j === 0 ? 'th' : 'td');
+
+        if (i === 0 && j > 0) td.innerText = letras[j - 1];
+        else if (j === 0 && i > 0) td.innerText = i;
+        else if (i > 0 && j > 0) {
+          td.dataset.coord = letras[j - 1] + i;
+        }
+
+        td.className = (i === 0 || j === 0) ? 'header-col' : 'celula-img';
+        tr.appendChild(td);
+      }
+      tabela.appendChild(tr);
+    }
+
+    container.appendChild(tabela);
+    destacarBloco();
+  }
+
+  function destacarBloco() {
+    const pos = document.getElementById('posicao').value.trim().toUpperCase();
+    const todas = document.querySelectorAll('#visual-estante td[data-coord]');
+    todas.forEach(td => {
+      td.classList.remove('destaque');
+      td.innerHTML = '';
+    });
+
+    const alvo = document.querySelector(`#visual-estante td[data-coord="${pos}"]`);
+    if (alvo) {
+      alvo.classList.add('destaque');
+      if (imagemBase64) {
+        const img = document.createElement('img');
+        img.src = imagemBase64;
+        alvo.appendChild(img);
+      }
+    }
+  }
+
+  function preverImagem(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      imagemBase64 = e.target.result;
+      destacarBloco();
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function mostrarEstoque() {
+    document.getElementById('adicionar-container').classList.add('hidden');
+    document.getElementById('estoque-container').classList.remove('hidden');
+  }
+
+  function voltarAdicionar() {
+    document.getElementById('estoque-container').classList.add('hidden');
+    document.getElementById('adicionar-container').classList.remove('hidden');
+  }
+</script>
+
+</body>
+</html>                                          
